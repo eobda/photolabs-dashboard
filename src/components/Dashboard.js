@@ -30,8 +30,10 @@ const data = [
 class Dashboard extends Component {
 
   state = {
-    loading: false,
-    focused: null
+    loading: true,
+    focused: null,
+    photos: [],
+    topics: []
   };
 
   componentDidMount() {
@@ -40,6 +42,20 @@ class Dashboard extends Component {
     if (focused) {
       this.setState({ focused });
     }
+
+    const urlsPromise = [
+      "/api/photos",
+      "/api/topics",
+    ].map(url => fetch(url).then(response => response.json()));
+
+    Promise.all(urlsPromise)
+    .then(([photos, topics]) => {
+      this.setState({
+        loading: false,
+        photos: photos,
+        topics: topics
+      });
+    });
   }
 
   componentDidUpdate(previousProps, previousState) {
@@ -58,6 +74,8 @@ class Dashboard extends Component {
     const dashboardClasses = classnames("dashboard", {
       "dashboard--focused": this.state.focused
     });
+
+    console.log(this.state);
 
     if (this.state.loading) {
       return <Loading />;
